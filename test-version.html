@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Version Check</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: white;
+        }
+        .info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #ff5252; }
+        h1 { color: #ffd700; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Version Check - Dice Evasion Game</h1>
+    
+    <div class="info">
+        <h2>Version Information:</h2>
+        <p><strong>Version:</strong> <span id="version" class="success">Loading...</span></p>
+        <p><strong>Build Date:</strong> <span id="buildDate">Loading...</span></p>
+        <p><strong>Last Update:</strong> <span id="lastUpdate">Loading...</span></p>
+        <p><strong>Status:</strong> <span id="status">Loading...</span></p>
+    </div>
+
+    <div class="info">
+        <h2>Deployment Info:</h2>
+        <p><strong>Current URL:</strong> <span id="currentUrl"></span></p>
+        <p><strong>Loaded At:</strong> <span id="loadTime"></span></p>
+    </div>
+
+    <div class="info">
+        <h2>Files Check:</h2>
+        <p><strong>index.html:</strong> <span id="indexCheck">Checking...</span></p>
+        <p><strong>game.js:</strong> <span id="gameCheck">Checking...</span></p>
+        <p><strong>version.json:</strong> <span id="versionCheck">Checking...</span></p>
+    </div>
+
+    <button onclick="location.reload()" style="background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">🔄 Refresh</button>
+    <button onclick="window.location.href='index.html'" style="background: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-left: 10px;">🎮 Go to Game</button>
+
+    <script>
+        // הצג URL נוכחי
+        document.getElementById('currentUrl').textContent = window.location.href;
+        document.getElementById('loadTime').textContent = new Date().toLocaleString();
+
+        // טען מידע גרסה
+        async function loadVersion() {
+            try {
+                const response = await fetch('version.json?' + new Date().getTime());
+                if (!response.ok) throw new Error('Failed to load');
+                
+                const data = await response.json();
+                document.getElementById('version').textContent = 'v' + data.version;
+                document.getElementById('buildDate').textContent = data.buildDate;
+                document.getElementById('lastUpdate').textContent = data.lastUpdate;
+                document.getElementById('status').innerHTML = '<span class="success">✅ Loaded Successfully!</span>';
+                document.getElementById('versionCheck').innerHTML = '<span class="success">✅ Found</span>';
+            } catch (error) {
+                document.getElementById('version').innerHTML = '<span class="error">❌ Error</span>';
+                document.getElementById('status').innerHTML = '<span class="error">❌ Failed to load: ' + error.message + '</span>';
+                document.getElementById('versionCheck').innerHTML = '<span class="error">❌ Not Found</span>';
+            }
+        }
+
+        // בדוק קבצים
+        async function checkFiles() {
+            try {
+                const indexResponse = await fetch('index.html', { method: 'HEAD' });
+                document.getElementById('indexCheck').innerHTML = indexResponse.ok ? '<span class="success">✅ Found</span>' : '<span class="error">❌ Not Found</span>';
+                
+                const gameResponse = await fetch('game.js', { method: 'HEAD' });
+                document.getElementById('gameCheck').innerHTML = gameResponse.ok ? '<span class="success">✅ Found</span>' : '<span class="error">❌ Not Found</span>';
+            } catch (error) {
+                document.getElementById('indexCheck').innerHTML = '<span class="error">❌ Error</span>';
+                document.getElementById('gameCheck').innerHTML = '<span class="error">❌ Error</span>';
+            }
+        }
+
+        // הרץ בדיקות
+        loadVersion();
+        checkFiles();
+    </script>
+</body>
+</html>
+
