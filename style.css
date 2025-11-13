@@ -1216,4 +1216,364 @@ body {
 
 .game-map-cell.safe {
     background-color: rgba(33, 150, 243, 0.3);
-} 
+}
+
+/* =============================================== */
+/* התאמות מובייל - Mobile Responsive */
+/* =============================================== */
+
+/* טאבלט ומכשירים קטנים */
+@media screen and (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    #lobby h1 {
+        font-size: 2em;
+    }
+
+    .login-container {
+        padding: 20px;
+    }
+
+    .login-container h1 {
+        font-size: 1.8em;
+    }
+
+    /* כפתורים */
+    #startBtn, #bossBtn, #backToLobbyBtn {
+        font-size: 16px;
+        padding: 12px 20px;
+    }
+
+    /* פרופיל */
+    #playerInfo {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-avatar {
+        margin-right: 0 !important;
+        margin-bottom: 15px;
+    }
+
+    .avatar-circle {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+    }
+
+    .profile-info h3 {
+        font-size: 1.2em;
+    }
+
+    /* סטטיסטיקות */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    /* קנבס המשחק */
+    #gameCanvas {
+        max-width: 100%;
+        height: auto;
+    }
+
+    #gameContainer {
+        max-width: 100%;
+        padding: 0 10px;
+    }
+
+    /* טבלת דירוג */
+    .leaderboard-table th, 
+    .leaderboard-table td {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .table-container {
+        max-height: 250px;
+    }
+
+    #leaderboardContainer {
+        padding: 15px;
+    }
+
+    .leaderboard-tabs {
+        flex-direction: column;
+    }
+
+    .tab-btn {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    /* הגדרות */
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        padding: 20px;
+    }
+
+    .settings-option {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* סקינים */
+    #skinsContainer {
+        gap: 8px;
+    }
+
+    .skin-btn {
+        width: 35px;
+        height: 35px;
+    }
+
+    /* יוצר מפות */
+    #mapEditor {
+        min-width: 250px;
+        min-height: 250px;
+    }
+
+    .mapCell {
+        width: 25px;
+        height: 25px;
+    }
+
+    .mapEditorContainer {
+        max-height: 400px;
+    }
+}
+
+/* מובייל קטן */
+@media screen and (max-width: 480px) {
+    body {
+        padding: 5px;
+    }
+
+    #lobby {
+        padding: 10px;
+    }
+
+    #lobby h1 {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+    }
+
+    .login-container h1 {
+        font-size: 1.5em;
+    }
+
+    .form-group input {
+        font-size: 16px; /* מונע זום אוטומטי באייפון */
+    }
+
+    /* כפתורים */
+    #startBtn, #bossBtn, #backToLobbyBtn {
+        font-size: 14px;
+        padding: 10px 15px;
+        width: 100%;
+        max-width: 200px;
+    }
+
+    /* הוראות */
+    .instructions {
+        padding: 15px;
+        font-size: 14px;
+    }
+
+    .instructions h2 {
+        font-size: 1.2em;
+    }
+
+    .instructions p {
+        font-size: 0.95em;
+    }
+
+    /* פרופיל */
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+
+    .profile-info h3 {
+        font-size: 1.1em;
+    }
+
+    .profile-detail {
+        font-size: 14px;
+        padding: 5px;
+    }
+
+    /* סטטיסטיקות */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .stat-value {
+        font-size: 1.5em;
+    }
+
+    .stat-label {
+        font-size: 0.85em;
+    }
+
+    /* טבלת דירוג */
+    .leaderboard-table th, 
+    .leaderboard-table td {
+        padding: 6px;
+        font-size: 12px;
+    }
+
+    .rank-column {
+        width: 40px;
+    }
+
+    .name-column {
+        width: auto;
+    }
+
+    .level-column,
+    .date-column,
+    .country-column {
+        display: none; /* הסתרת עמודות בלתי נחוצות במובייל */
+    }
+
+    #leaderboardContainer h2 {
+        font-size: 1.5em;
+    }
+
+    .player-count {
+        font-size: 12px;
+        padding: 3px 10px;
+    }
+
+    /* הגדרות */
+    .modal-content {
+        margin: 5% auto;
+        padding: 15px;
+    }
+
+    .settings-option label {
+        font-size: 16px;
+    }
+
+    .settings-option select {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+
+    /* כפתור הגדרות */
+    #settingsButton {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+        top: 10px;
+        right: 10px;
+    }
+
+    /* הודעות */
+    #message {
+        font-size: 1.2em;
+    }
+
+    .level-up-message {
+        font-size: 1.2em;
+        padding: 15px 25px;
+    }
+
+    /* יוצר מפות */
+    #mapEditor {
+        min-width: 200px;
+        min-height: 200px;
+    }
+
+    .mapCell {
+        width: 20px;
+        height: 20px;
+    }
+
+    .mapEditorContainer {
+        max-height: 300px;
+    }
+
+    .mapTool {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+
+    .mapButtons {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    #saveMapBtn, #clearMapBtn {
+        width: 100%;
+        max-width: 200px;
+    }
+}
+
+/* אייפון X ומעלה - תמיכה ב-notch */
+@media screen and (max-width: 480px) {
+    body {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+}
+
+/* מצב לנדסקייפ במובייל */
+@media screen and (max-width: 768px) and (orientation: landscape) {
+    #gameCanvas {
+        max-height: 60vh;
+    }
+
+    #lobby h1 {
+        font-size: 1.8em;
+        margin-bottom: 15px;
+    }
+
+    .instructions {
+        padding: 10px;
+        margin: 15px 0;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* תמיכה בטאץ' ואינטראקציה במובייל */
+@media (hover: none) and (pointer: coarse) {
+    /* הגדלת כפתורים למגע */
+    button, .skin-btn, .mapCell, .tab-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* הסרת אפקטי hover במכשירי מגע */
+    button:hover,
+    .skin-btn:hover,
+    .tab-btn:hover,
+    #settingsButton:hover {
+        transform: none;
+    }
+
+    /* שיפור מגע לכפתורים */
+    button:active,
+    .skin-btn:active,
+    .tab-btn:active {
+        transform: scale(0.95);
+        transition: transform 0.1s ease;
+    }
+}
