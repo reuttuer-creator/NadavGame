@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dice Evasion Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: white;
+            text-align: center;
+        }
+        
+        #gameCanvas {
+            border: 2px solid white;
+            margin: 20px auto;
+            display: block;
+            background-color: #333;
+        }
+        
+        #message {
+            font-size: 24px;
+            margin: 10px;
+            height: 30px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        #lobby {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            display: none; /* הסתרת הלובי בהתחלה */
+        }
+        
+        #skinsContainer {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .skin-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+        
+        .skin-btn.selected {
+            border: 2px solid white;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        }
+        
+        #settingsButton {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 2000;
+            display: none; /* הסתרת כפתור ההגדרות בהתחלה */
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2001;
+        }
+        
+        .modal-content {
+            background-color: #333;
+            margin: 10% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        /* סגנונות למסך התחברות */
+        #loginScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #222;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .login-container {
+            background-color: #333;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .login-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #444;
+            color: white;
+            font-size: 16px;
+        }
+        
+        #loginBtn {
+            background-color: #4CAF50;
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- מסך התחברות -->
+    <div id="loginScreen">
+        <div class="login-container">
+            <h2 class="login-title">Welcome to Dice Evasion Game</h2>
+            <div class="input-group">
+                <label for="nameInput">Your Name:</label>
+                <input type="text" id="nameInput" placeholder="Enter your name">
+            </div>
+            <div class="input-group">
+                <label for="emailInput">Your Email:</label>
+                <input type="email" id="emailInput" placeholder="Enter your email">
+            </div>
+            <button id="loginBtn">Start Playing</button>
+        </div>
+    </div>
+    
+    <div id="lobby">
+        <h1>Dice Evasion Game</h1>
+        <div id="playerInfo">
+            <span id="welcomeMessage">Welcome, Player!</span>
+            <div id="playerLevel">Level: <span id="playerLevelValue">1</span></div>
+        </div>
+        <div class="instructions">
+            <h2>How to Play:</h2>
+            <p>• Use the left/right arrow keys to move</p>
+            <p>• Dodge the falling red dice</p>
+            <p>• Survive for one minute to pass the level</p>
+            <p>• In level 2, more dice will fall at once!</p>
+            <p>• In level 3, dice will also come from the sides – jump over them with the Space key!</p>
+        </div>
+        
+        <div id="skinsContainer"></div>
+        <div>
+            <label for="levelSelect">Start from level:</label>
+            <select id="levelSelect">
+                <option value="1">Level 1</option>
+                <option value="2">Level 2</option>
+                <option value="3">Level 3</option>
+                <option value="4">Level 4</option>
+            </select>
+        </div>
+        <button id="startBtn">Start Game</button>
+    </div>
+    
+    <div id="gameContainer" style="display:none;">
+        <h1 id="gameTitle">Dice Evasion Game - Level 1</h1>
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+        <div id="message"></div>
+        <button id="retryBtn" style="display:none;">Try Again</button>
+        <button id="backToLobbyBtn">Back to Lobby</button>
+    </div>
+    
+    <div id="settingsButton">⚙️</div>
+    
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Settings</h2>
+            <div>
+                <label for="languageSelect">Language:</label>
+                <select id="languageSelect">
+                    <option value="en">English</option>
+                    <option value="he">עברית</option>
+                </select>
+            </div>
+            <button id="saveSettingsBtn">Save</button>
+        </div>
+    </div>
+    
+    <script>
+        // משתני התחברות
+        let playerName = '';
+        let playerEmail = '';
+        let playerLevel = 1;
+        let isLoggedIn = false;
+        let joinDate = '';
+        
+        // משתני משחק
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const messageDiv = document.getElementById('message');
+        const retryBtn = document.getElementById('retryBtn');
+        const startBtn = document.getElementById('startBtn');
+        const backToLobbyBtn = document.getElementById('backToLobbyBtn');
+        const lobby = document.getElementById('lobby');
+        const gameContainer = document.getElementById('gameContainer');
+        const settingsButton = document.getElementById('settingsButton');
+        const settingsModal = document.getElementById('settingsModal');
+        const closeButton = document.querySelector('.close-button');
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+        
+        // אלמנטים של מסך התחברות
+        const loginScreen = document.getElementById('loginScreen');
+        const nameInput = document.getElementById('nameInput');
+        const emailInput = document.getElementById('emailInput');
+        const loginBtn = document.getElementById('loginBtn');
+        
+        // הגדרות דמות
+        const player = {
+            x: canvas.width / 2 - 20,
+            y: canvas.height - 40,
+            width: 40,
+            height: 40,
+            color: '#00cc44', // ירוק קבוע
+            speed: 6
+        };
+        
+        // קוביות נופלות
+        const boxes = [];
+        const boxWidth = 40;
+        const boxHeight = 40;
+        const boxSpeed = 3;
+        let boxInterval = 1200; // כל כמה זמן נוצרת קוביה (ms)
+        let lastBoxTime = 0;
+        
+        // משתני קפיצה
+        let isJumping = false;
+        let jumpStartY = 0;
+        let jumpTime = 0;
+        const jumpHeight = 90;
+        const jumpDuration = 600; // ms
+        
+        // טיימר שלב
+        let level = 1;
+        let levelTime = 60000; // ברירת מחדל: 60 שניות
+        let startTime = null;
+        let gameOver = false;
+        
+        // קלט מקשים
+        const keys = {};
+        document.addEventListener('keydown', e => {
+            keys[e.key] = true;
+            if (e.key === ' ' && !isJumping && player.y >= canvas.height - player.height - 0.1) {
+                isJumping = true;
+                jumpStartY = canvas.height - player.height;
+                jumpTime = 0;
+            }
+        });
+        document.addEventListener('keyup', e => keys[e.key] = false);
+        
+        // הגדרת צבעים קבועים לכל שלב
+        const LEVEL_SKINS = {
+            1: '#00cc44', // ירוק
+            2: '#ff66cc', // ורוד
+            3: '#3366ff', // כחול
+            4: '#ff9933'  // כתום (התחלתי)
+        };
+        
+        let ownedSkins = [LEVEL_SKINS[1]]; // בהתחלה יש רק את הסקין הירוק
+        let selectedSkin = LEVEL_SKINS[1];
+        
+        // טיפול בהתחברות
+        loginBtn.addEventListener('click', function() {
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+            
+            if (name === '' || email === '') {
+                alert('Please enter your name and email');
+                return;
+            }
+            
+            playerName = name;
+            playerEmail = email;
+            isLoggedIn = true;
+            playerLevel = 1;
+            
+            // הגדרת תאריך הצטרפות
+            const now = new Date();
+            joinDate = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
+            
+            // שמירת נתונים ב-localStorage
+            saveGameData();
+            
+            // הצגת הלובי והסתרת מסך ההתחברות
+            loginScreen.style.display = 'none';
+            lobby.style.display = 'block';
+            settingsButton.style.display = 'flex';
+            
+            // עדכון שם המשתמש בלובי
+            document.getElementById('welcomeMessage').textContent = `Welcome, ${playerName}!`;
+            document.getElementById('playerLevelValue').textContent = playerLevel;
+        });
+        
+        // פונקציה לשמירת נתוני המשחק
+        function saveGameData() {
+            const gameData = {
+                playerName: playerName,
+                playerEmail: playerEmail,
+                playerLevel: playerLevel,
+                isLoggedIn: isLoggedIn,
+                joinDate: joinDate,
+                ownedSkins: ownedSkins,
+                selectedSkin: selectedSkin
+            };
+            
+            localStorage.setItem('diceEvasionGame', JSON.stringify(gameData));
+        }
+        
+        // פונקציה לטעינת נתוני המשחק
+        function loadGameData() {
+            const savedData = localStorage.getItem('diceEvasionGame');
+            if (savedData) {
+                const gameData = JSON.parse(savedData);
+                
+                playerName = gameData.playerName || '';
+                playerEmail = gameData.playerEmail || '';
+                playerLevel = gameData.playerLevel || 1;
+                isLoggedIn = gameData.isLoggedIn || false;
+                joinDate = gameData.joinDate || '';
+                ownedSkins = gameData.ownedSkins || [LEVEL_SKINS[1]];
+                selectedSkin = gameData.selectedSkin || LEVEL_SKINS[1];
+                
+                if (isLoggedIn) {
+                    // הצגת הלובי והסתרת מסך ההתחברות
+                    loginScreen.style.display = 'none';
+                    lobby.style.display = 'block';
+                    settingsButton.style.display = 'flex';
+                    
+                    // עדכון שם המשתמש בלובי
+                    document.getElementById('welcomeMessage').textContent = `Welcome, ${playerName}!`;
+                    document.getElementById('playerLevelValue').textContent = playerLevel;
+                }
+            }
+        }
+        
+        // פונקציה לציור השחקן
+        function drawPlayer() {
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+        
+        // פונקציה לציור הקוביות
+        function drawBoxes() {
+            for (const box of boxes) {
+                ctx.fillStyle = '#ff3333'; // אדום
+                ctx.fillRect(box.x, box.y, box.width, box.height);
+            }
+        }
+        
+        // פונקציה לעדכון מיקום השחקן
+        function updatePlayer() {
+            // תנועה ימינה/שמאלה
+            if (keys['ArrowLeft']) {
+                player.x = Math.max(0, player.x - player.speed);
+            }
+            if (keys['ArrowRight']) {
+                player.x = Math.min(canvas.width - player.width, player.x + player.speed);
+            }
+            
+            // קפיצה
+            if (isJumping) {
+                jumpTime += 16; // ~60fps
+                const progress = Math.min(jumpTime / jumpDuration, 1);
+                const jumpY = Math.sin(progress * Math.PI) * jumpHeight;
+                player.y = jumpStartY - jumpY;
+                
+                if (progress === 1) {
+                    isJumping = false;
+                    player.y = canvas.height - player.height;
+                }
+            }
+        }
+        
+        // פונקציה לעדכון מיקום הקוביות
+        function updateBoxes() {
+            for (let i = boxes.length - 1; i >= 0; i--) {
+                const box = boxes[i];
+                
+                // עדכון מיקום
+                if (box.speedY !== undefined) {
+                    box.y += box.speedY;
+                } else {
+                    box.y += boxSpeed;
+                }
+                
+                if (box.speedX !== undefined) {
+                    box.x += box.speedX;
+                }
+                
+                // הסרת קוביות שיצאו מהמסך
+                if (box.y > canvas.height || box.x < -box.width || box.x > canvas.width) {
+                    boxes.splice(i, 1);
+                }
+            }
+        }
+        
+        // פונקציה ליצירת קוביות נופלות
+        function spawnBox() {
+            if (level === 1) {
+                // שלב 1: קוביה אחת מלמעלה
+                const x = Math.floor(Math.random() * (canvas.width - boxWidth));
+                boxes.push({ x, y: -boxHeight, width: boxWidth, height: boxHeight, speed: boxSpeed });
+            } else if (level === 2) {
+                // שלב 2: 3 קוביות מלמעלה
+                const usedPositions = [];
+                for (let i = 0; i < 3; i++) {
+                    let x;
+                    let attempts = 0;
+                    do {
+                        x = Math.floor(Math.random() * (canvas.width - boxWidth));
+                        attempts++;
+                    } while (usedPositions.some(pos => Math.abs(pos - x) < boxWidth) && attempts < 20);
+                    if (attempts >= 20) continue; // אם לא נמצא מקום פנוי, דלג
+                    usedPositions.push(x);
+                    boxes.push({ x, y: -boxHeight, width: boxWidth, height: boxHeight, speed: boxSpeed });
+                }
+            } else if (level === 3) {
+                // שלב 3: קוביות מהצדדים
+                spawnSideBox();
+                spawnSideBox();
+            } else if (level === 4) {
+                // שלב 4: קוביה מלמעלה וקוביות מהצדדים
+                const x = Math.floor(Math.random() * (canvas.width - boxWidth));
+                boxes.push({ x, y: -boxHeight, width: boxWidth, height: boxHeight, speed: boxSpeed });
+                // 2 קוביות מהצדדים
+                spawnSideBox();
+                spawnSideBox();
+            }
+        }
+        
+        // קוביות מהצדדים בשלב 3
+        function spawnSideBox() {
+            // בחר צד אקראי
+            const fromLeft = Math.random() < 0.5;
+            const y = canvas.height - player.height - 10; // בגובה הדמות
+            const x = fromLeft ? -boxWidth : canvas.width;
+            const speed = fromLeft ? 4 : -4;
+            boxes.push({ x, y, width: boxWidth, height: boxHeight, speedX: speed, speedY: 0, side: true });
+        }
+        
+        // פונקציה לבדיקת התנגשויות
+        function checkCollision() {
+            for (const box of boxes) {
+                if (
+                    player.x < box.x + box.width &&
+                    player.x + player.width > box.x &&
+                    player.y < box.y + box.height &&
+                    player.y + player.height > box.y
+                ) {
+                    // אם קופצים מעל קוביה מהצד – אין פגיעה
+                    if (box.side && isJumping && player.y + player.height < box.y + 10) continue;
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // פונקציה לציור הטיימר
+        function drawTimer(timeLeft) {
+            ctx.fillStyle = '#fff';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Time: ${(timeLeft / 1000).toFixed(1)}`, 10, 30);
+        }
+        
+        // לולאת המשחק
+        function gameLoop(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+            const timeLeft = Math.max(0, levelTime - elapsed);
+        
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawBoxes();
+            drawTimer(timeLeft);
+            updatePlayer();
+            updateBoxes();
+        
+            // יצירת קוביות
+            if (timestamp - lastBoxTime > boxInterval) {
+                spawnBox();
+                lastBoxTime = timestamp;
+            }
+        
+            // בדיקת פגיעה
+            if (checkCollision()) {
+                endGame(false);
+                return;
+            }
+        
+            // בדיקת סיום שלב
+            if (timeLeft <= 0) {
+                endGame(true);
+                return;
+            }
+        
+            if (!gameOver) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        // פונקציה לסיום המשחק
+        function endGame(won) {
+            gameOver = true;
+            
+            if (won) {
+                // עליית רמה
+                messageDiv.textContent = `Level ${level} completed!`;
+                
+                // הוספת הסקין של השלב הבא לרשימת הסקינים שבבעלות השחקן
+                if (level < 4) {
+                    const nextLevelSkin = LEVEL_SKINS[level + 1];
+                    if (!ownedSkins.includes(nextLevelSkin)) {
+                        ownedSkins.push(nextLevelSkin);
+                    }
+                }
+                
+                // עדכון רמת השחקן
+                if (level > playerLevel) {
+                    playerLevel = level;
+                    document.getElementById('playerLevelValue').textContent = playerLevel;
+                }
+                
+                // שמירת נתונים
+                saveGameData();
+                
+                if (level < 4) {
+                    retryBtn.textContent = `Start Level ${level + 1}`;
+                } else {
+                    retryBtn.textContent = `Play Again`;
+                }
+            } else {
+                // הפסד
+                messageDiv.textContent = 'Game Over!';
+                retryBtn.textContent = 'Try Again';
+            }
+            
+            retryBtn.style.display = 'inline-block';
+        }
+        
+        // פונקציה להתחלת המשחק
+        function startGame(nextLevel = false) {
+            gameOver = false;
+            boxes.length = 0;
+            messageDiv.textContent = '';
+            retryBtn.style.display = 'none';
+            
+            if (nextLevel) {
+                level++;
+                if (level > 4) level = 1;
+            }
+            
+            // עדכון צבע השחקן לפי השלב
+            player.color = selectedSkin;
+            
+            // עדכון כותרת המשחק
+            document.getElementById('gameTitle').textContent = `Dice Evasion Game - Level ${level}`;
+            
+            // איפוס מיקום השחקן
+            player.x = canvas.width / 2 - player.width / 2;
+            player.y = canvas.height - player.height;
+            
+            // איפוס זמנים
+            startTime = null;
+            lastBoxTime = 0;
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // פונקציה להצגת הלובי
+        function showLobby() {
+            gameContainer.style.display = 'none';
+            lobby.style.display = 'block';
+            renderSkins();
+        }
+        
+        // פונקציה להצגת הסקינים בלובי
+        function renderSkins() {
+            const skinsContainer = document.getElementById('skinsContainer');
+            skinsContainer.innerHTML = '';
+            
+            ownedSkins.forEach(skin => {
+                const skinBtn = document.createElement('div');
+                skinBtn.className = 'skin-btn' + (skin === selectedSkin ? ' selected' : '');
+                skinBtn.style.backgroundColor = skin;
+                skinBtn.addEventListener('click', () => {
+                    document.querySelectorAll('.skin-btn').forEach(btn => btn.classList.remove('selected'));
+                    skinBtn.classList.add('selected');
+                    selectedSkin = skin;
+                    saveGameData();
+                });
+                skinsContainer.appendChild(skinBtn);
+            });
+        }
+        
+        // מאזיני אירועים
+        startBtn.addEventListener('click', function() {
+            lobby.style.display = 'none';
+            gameContainer.style.display = 'block';
+            level = parseInt(document.getElementById('levelSelect').value);
+            
+            // וודא שיש לשחקן את הסקינים הדרושים לפי השלב שנבחר
+            for (let i = 1; i <= level; i++) {
+                if (!ownedSkins.includes(LEVEL_SKINS[i])) {
+                    ownedSkins.push(LEVEL_SKINS[i]);
+                }
+            }
+            
+            startGame();
+        });
+        
+        backToLobbyBtn.addEventListener('click', showLobby);
+        
+        retryBtn.onclick = function() {
+            if (gameOver && level === 1 && messageDiv.textContent.includes('completed')) {
+                level = 2;
+                startGame(true);
+            } else if (gameOver && level === 2 && messageDiv.textContent.includes('completed')) {
+                level = 3;
+                startGame(true);
+            } else if (gameOver && level === 3 && messageDiv.textContent.includes('completed')) {
+                level = 4;
+                startGame(true);
+            } else {
+                startGame(level === 2 || level === 3 || level === 4);
+            }
+        };
+        
+        // טיפול בכפתור ההגדרות
+        settingsButton.addEventListener('click', function() {
+            settingsModal.style.display = 'block';
+        });
+        
+        closeButton.addEventListener('click', function() {
+            settingsModal.style.display = 'none';
+        });
+        
+        saveSettingsBtn.addEventListener('click', function() {
+            settingsModal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(event) {
+            if (event.target === settingsModal) {
+                settingsModal.style.display = 'none';
+            }
+        });
+        
+        // טעינת נתוני המשחק בטעינת הדף
+        loadGameData();
+        
+        // הפעלת הצגת הסקינים בלובי
+        renderSkins();
+    </script>
+</body>
+</html>  

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dice Evasion Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- מסך התחברות -->
+    <form id="loginOverlay" onsubmit="return loginDirectly()">
+        <div style="background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 40px; border-radius: 20px; max-width: 450px; width: 90%; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); text-align: center;">
+            <h1 id="loginTitle" style="color: white; font-size: 2.5em; margin-bottom: 30px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">Dice Evasion Game</h1>
+            <div style="margin: 25px 0;">
+                <label for="loginName" id="nameLabel" style="display: block; text-align: left; color: white; font-size: 1.2em; margin-bottom: 5px; font-weight: bold;">Name:</label>
+                <input type="text" id="loginName" placeholder="Enter your name" style="display: block; width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; font-size: 1.1em; background: rgba(255, 255, 255, 0.9); box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);">
+            </div>
+            <div style="margin: 25px 0;">
+                <label for="loginPassword" id="passwordLabel" style="display: block; text-align: left; color: white; font-size: 1.2em; margin-bottom: 5px; font-weight: bold;">סיסמה ייחודית:</label>
+                <input type="password" id="loginPassword" placeholder="הזן סיסמה ייחודית" style="display: block; width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; font-size: 1.1em; background: rgba(255, 255, 255, 0.9); box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);">
+                <small id="passwordHint" style="color: #ffeb3b; display: block; margin-top: 5px;">הסיסמה חייבת להיות ייחודית - אף אחד אחר לא יכול להשתמש בה</small>
+            </div>
+            <div id="loginError" style="color: #ff6b6b; background: rgba(255, 107, 107, 0.2); padding: 10px; border-radius: 10px; margin: 10px 0; display: none; border: 2px solid #ff6b6b;"></div>
+            <button type="submit" id="loginButton" onclick="loginDirectly(); return false;" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white; padding: 15px 30px; border: none; border-radius: 50px; cursor: pointer; width: 100%; font-size: 1.2em; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); transition: all 0.3s ease;">התחבר</button>
+        </div>
+    </form>
+
+    <div id="lobby" style="display: none;">
+        <h1>Dice Evasion Game</h1>
+        <div id="playerInfo">
+            <span id="welcomeMessage">Welcome, Player!</span>
+        </div>
+        <div class="instructions">
+            <h2 id="howToPlayTitle">How to Play:</h2>
+            <p id="instruction1">• Use the left/right arrow keys to move</p>
+            <p id="instruction2">• Dodge the falling red dice</p>
+            <p id="instruction3">• Survive for one minute to pass the level</p>
+            <p id="instruction4">• In level 2, more dice will fall at once!</p>
+            <p id="instruction5">• In level 3, dice will also come from the sides – jump over them with the Space key!</p>
+        </div>
+        
+        <div id="skinsContainer"></div>
+        
+        <button id="startBtn" type="button" onclick="if(window.startNewGame) window.startNewGame(); return false;">התחל משחק</button>
+        <button id="bossBtn" type="button" onclick="if(window.startBossFight) window.startBossFight(); return false;" style="background: linear-gradient(45deg, #8B0000, #DC143C); margin-top: 10px;">⚔️ בוס ⚔️</button>
+
+    </div>
+
+    <div id="gameContainer" style="display:none;">
+        <h1 id="gameTitle">Dice Evasion Game - Level 1</h1>
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+        <button id="shootBtn" style="display:none; position:fixed; bottom:20px; right:20px; width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg, #00ff00, #00cc00); border:4px solid #006600; font-size:30px; cursor:pointer; z-index:1000; box-shadow: 0 4px 15px rgba(0,255,0,0.5);">🎯</button>
+        <div id="message"></div>
+        <button id="retryBtn" style="display:none;">Try Again</button>
+        <button id="backToLobbyBtn">Back to Lobby</button>
+    </div>
+    
+    <div id="settingsButton" style="display: none;">⚙️</div>
+    
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 id="settingsTitle">Settings</h2>
+            
+            <!-- טאבים בהגדרות -->
+            <div class="settings-tabs">
+                <button class="settings-tab-btn active" id="generalTabBtn" data-tab="generalTab">General</button>
+                <button class="settings-tab-btn" id="profileTabBtn" data-tab="profileTab">Profile</button>
+                <button class="settings-tab-btn" id="leaderboardTabBtn" data-tab="leaderboardTab">Leaderboard</button>
+                <button class="settings-tab-btn" id="friendsTabBtn" data-tab="friendsTab">Friends</button>
+            </div>
+            
+            <!-- תוכן הטאבים -->
+            <div id="generalTab" class="settings-tab-content">
+                <div class="settings-option">
+                    <label for="languageSelect" id="languageLabel">Language:</label>
+                    <select id="languageSelect">
+                        <option value="en">English</option>
+                        <option value="he">עברית</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="profileTab" class="settings-tab-content" style="display: none;">
+                <div class="settings-option">
+                    <label for="playerNameChange" id="playerNameLabel">Change Name:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="playerNameChange" placeholder="Enter new name" style="flex: 1; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                        <button id="saveNameBtn" class="primary-btn">Save</button>
+                    </div>
+                </div>
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <div class="avatar-circle" id="playerAvatar">P</div>
+                        </div>
+                        <div class="profile-info">
+                            <h3 id="profileName">Player Name</h3>
+                            <div class="profile-details">
+                                <div class="profile-detail">
+                                    <span id="profileJoinDateLabel">Joined:</span>
+                                    <span id="profileJoinDate">01/01/2023</span>
+                                </div>
+                                <div class="profile-detail">
+                                    <span id="profileEmailLabel">Email:</span>
+                                    <span id="profileEmail">player@example.com</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-stats">
+                        <h4 id="profileStatsTitle">Player Statistics</h4>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value" id="profileTotalGames">0</div>
+                                <div class="stat-label" id="profileTotalGamesLabel">Total Games</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="profileRank">--</div>
+                                <div class="stat-label" id="profileRankLabel">Local Rank</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="leaderboardTab" class="settings-tab-content" style="display: none;">
+                <div class="settings-option">
+                    <label for="showLeaderboardSelect" id="showLeaderboardLabel">Show Leaderboard:</label>
+                    <select id="showLeaderboardSelect">
+                        <option value="both">Both Local & Global</option>
+                        <option value="local">Local Only</option>
+                        <option value="global">Global Only</option>
+                        <option value="none">Hide Leaderboards</option>
+                    </select>
+                </div>
+                <div class="settings-option">
+                    <label for="defaultLeaderboardSelect" id="defaultLeaderboardLabel">Default View:</label>
+                    <select id="defaultLeaderboardSelect">
+                        <option value="local">Local</option>
+                        <option value="global">Global</option>
+                    </select>
+                </div>
+                <div class="settings-option">
+                    <label id="resetLocalLeaderboardLabel">Reset Local Leaderboard:</label>
+                    <button id="resetLocalLeaderboardBtn" class="danger-btn">Reset</button>
+                </div>
+            </div>
+            
+            <div id="friendsTab" class="settings-tab-content" style="display: none;">
+                <div class="settings-option">
+                    <h3 id="friendsListLabel">Friends (0/100)</h3>
+                    <div id="friendsList" style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
+                        <p style="text-align: center; color: #999;">No friends yet</p>
+                    </div>
+                </div>
+                
+                <div class="settings-option">
+                    <h3 id="addFriendLabel">Add Friend</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="friendEmailInput" placeholder="Enter friend email or name" style="flex: 1; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                        <button id="sendFriendRequestBtn" class="primary-btn">Send Request</button>
+                    </div>
+                </div>
+                
+                <div class="settings-option">
+                    <h3 id="friendRequestsLabel">Friend Requests (0)</h3>
+                    <div id="friendRequestsList" style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
+                        <p style="text-align: center; color: #999;">No pending requests</p>
+                    </div>
+                </div>
+            </div>
+                </div>
+            </div>
+            
+            <button id="saveSettingsBtn">Save</button>
+        </div>
+    </div>
+    
+    <!-- טבלאות דירוג -->
+        <div id="leaderboardContainer">
+            <h2 id="leaderboardTitle">Leaderboards</h2>
+        <div class="leaderboard-header">
+            <div class="leaderboard-tabs">
+                <button class="tab-btn active" id="localTabBtn" data-tab="localLeaderboard">Local</button>
+                <button class="tab-btn" id="globalTabBtn" data-tab="globalLeaderboard">Global</button>
+            </div>
+            <div class="leaderboard-actions">
+                <button id="refreshLeaderboardBtn" class="refresh-btn" title="Refresh leaderboards">
+                    <span class="refresh-icon">↻</span>
+                </button>
+                <select id="leaderboardSortSelect">
+                    <option value="name">Sort by Name</option>
+                    <option value="date">Sort by Date</option>
+                </select>
+            </div>
+        </div>
+        
+            <div id="localLeaderboard" class="leaderboard-content">
+            <div class="leaderboard-title-container">
+                <h3 id="localLeaderboardTitle">Local Top Players</h3>
+                <span id="localPlayerCount" class="player-count">0 players</span>
+            </div>
+            <div class="table-container">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th id="rankHeader" class="rank-column">Rank</th>
+                            <th id="nameHeader" class="name-column">Name</th>
+                            <th id="dateHeader" class="date-column">Join Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="localLeaderboardBody">
+                        <!-- תוכן דינמי -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="leaderboard-footer">
+                <span id="localYourRank">Your rank: -</span>
+                <button id="resetLocalLeaderboardBtnInline" class="small-danger-btn">Reset Local</button>
+            </div>
+        </div>
+        
+        <div id="globalLeaderboard" class="leaderboard-content" style="display: none;">
+            <div class="leaderboard-title-container">
+                <h3 id="globalLeaderboardTitle">Global Top Players</h3>
+                <span id="globalPlayerCount" class="player-count">0 players</span>
+            </div>
+            <div class="table-container">
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th id="globalRankHeader" class="rank-column">Rank</th>
+                            <th id="globalNameHeader" class="name-column">Name</th>
+                            <th id="globalCountryHeader" class="country-column">Country</th>
+                        </tr>
+                    </thead>
+                    <tbody id="globalLeaderboardBody">
+                        <!-- תוכן דינמי -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="leaderboard-footer">
+                <span id="globalYourRank">Your global rank: -</span>
+                <button id="shareScoreBtn" class="share-btn">Share Score</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="game.js"></script>
+    <script src="map-creator.js"></script>
+    
+    <script>
+        // המתן שכל הסקריפטים יטענו
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM נטען במלואו');
+            
+            // המתן קצת יותר זמן כדי שהפונקציות יטענו
+            setTimeout(function() {
+                if (typeof loadGameData === 'function') {
+                    loadGameData();
+                    console.log("נתוני משחק נטענו");
+                } else {
+                    console.error("פונקציית loadGameData לא נמצאה");
+                    // נסה שוב אחרי עוד קצת זמן
+                    setTimeout(function() {
+                        if (typeof loadGameData === 'function') {
+                            loadGameData();
+                            console.log("נתוני משחק נטענו (ניסיון שני)");
+                        } else {
+                            console.error("פונקציית loadGameData עדיין לא נמצאה");
+                        }
+                    }, 1000);
+                }
+            }, 500);
+        });
+    </script>
+    
+    <script>
+        // loginDirectly מוגדר ב-game.js ולא כאן!
+        
+        // הוסף מאזיני אירועים נוספים לאחר טעינת הדף
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('מוסיף מאזיני אירועים נוספים לאחר טעינת הדף');
+            
+            // עדכן את מסך ההתחברות
+            const loginTitle = document.getElementById('loginTitle');
+            const nameLabel = document.getElementById('nameLabel');
+            const emailLabel = document.getElementById('emailLabel');
+            const loginButton = document.getElementById('loginButton');
+            
+            // בדוק אם השפה היא עברית
+            const savedData = localStorage.getItem('diceEvasionGame');
+            if (savedData) {
+                try {
+                    const gameData = JSON.parse(savedData);
+                    if (gameData.language === 'he') {
+                        // עדכן את הטקסט לעברית
+                        if (loginTitle) loginTitle.textContent = "משחק התחמקות מקוביות";
+                        if (nameLabel) nameLabel.textContent = "שם:";
+                        if (emailLabel) emailLabel.textContent = "אימייל:";
+                        if (loginButton) loginButton.textContent = "התחל לשחק";
+                        
+                        // הוסף כיוון RTL לאלמנטים
+                        const loginOverlay = document.querySelector('#loginOverlay > div');
+                        if (loginOverlay) {
+                            loginOverlay.style.direction = 'rtl';
+                            loginOverlay.style.textAlign = 'right';
+                        }
+                    }
+                } catch (e) {
+                    console.error("שגיאה בטעינת נתוני משחק:", e);
+                }
+            }
+            
+            // וודא שכפתור פתיחת יוצר המפות עובד
+            setTimeout(function() {
+                const openMapCreatorBtn = document.getElementById('openMapCreatorBtn');
+                if (openMapCreatorBtn) {
+                    openMapCreatorBtn.addEventListener('click', function() {
+                        console.log('נלחץ כפתור פתיחת יוצר המפות');
+                        
+                        // סגור את חלון ההגדרות
+                        const settingsModal = document.getElementById('settingsModal');
+                        if (settingsModal) {
+                            settingsModal.style.display = 'none';
+                            console.log('חלון הגדרות נסגר');
+                        }
+                        
+                        // הצג את הלובי אם הוא לא מוצג
+                        const lobby = document.getElementById('lobby');
+                        if (lobby && lobby.style.display === 'none') {
+                            lobby.style.display = 'block';
+                            console.log('הלובי הוצג');
+                        }
+                        
+                        // גלול למיכל יצירת המפות
+                        const mapCreatorContainer = document.getElementById('mapCreatorContainer');
+                        if (mapCreatorContainer) {
+                            mapCreatorContainer.scrollIntoView({ behavior: 'smooth' });
+                            console.log('גלילה למיכל יצירת המפות');
+                            
+                            // אתחל את רשת המפה אם היא לא אותחלה
+                            if (typeof initMapCreator === 'function') {
+                                setTimeout(function() {
+                                    initMapCreator();
+                                    console.log('מערכת יצירת המפות אותחלה מחדש');
+                                }, 100);
+                            } else {
+                                console.error('פונקציית initMapCreator לא נמצאה');
+                            }
+                        } else {
+                            console.error('מיכל יצירת המפות לא נמצא');
+                        }
+                    });
+                    console.log('נוסף מאזין אירועים לכפתור פתיחת יוצר המפות');
+                } else {
+                    console.error('כפתור פתיחת יוצר המפות לא נמצא');
+                }
+            }, 500);
+            
+            // אתחל את מערכת יצירת המפות
+            if (typeof initMapCreator === 'function') {
+                setTimeout(function() {
+                    initMapCreator();
+                    console.log('מערכת יצירת המפות אותחלה באופן מיידי');
+                }, 1000);
+            }
+            
+            // הוסף אנימציה לכפתור ההתחברות וטיפול בלחיצה
+            const loginBtn = document.getElementById('loginButton');
+            if (loginBtn) {
+                // הוסף מאזין אירוע לחיצה כגיבוי
+                // הסר את מאזין האירוע הזה כי יש לנו כבר onclick ישירות על הכפתור
+                // loginBtn.addEventListener('click', function(e) {
+                //     e.preventDefault();
+                //     loginDirectly();
+                // });
+                
+                // הוסף אנימציות לכפתור
+                loginBtn.addEventListener('mouseover', function() {
+                    this.style.transform = 'translateY(-3px)';
+                    this.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.3)';
+                });
+                
+                loginBtn.addEventListener('mouseout', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)';
+                });
+                
+                loginBtn.addEventListener('mousedown', function() {
+                    this.style.transform = 'translateY(2px)';
+                    this.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.3)';
+                });
+                
+                loginBtn.addEventListener('mouseup', function() {
+                    this.style.transform = 'translateY(-3px)';
+                    this.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.3)';
+                });
+            }
+        });
+    </script>
+</body>
+</html>  T 
