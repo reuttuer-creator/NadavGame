@@ -1,0 +1,20 @@
+{
+  "name": "dice-evasion-game",
+  "version": "1.2.0",
+  "description": "🎮 Dice Evasion Game - Dodge falling dice and survive!",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "game",
+    "html5",
+    "canvas",
+    "dice",
+    "evasion"
+  ],
+  "author": "Nadav",
+  "license": "MIT"
+}
+
