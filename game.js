@@ -3382,41 +3382,58 @@ function copyToClipboard(text) {
 
 // פונקציה לטעינת מידע גרסה
 async function loadVersionInfo() {
+    // מידע גרסה קשיח (fallback אם fetch נכשל)
+    const defaultVersionData = {
+        version: "1.2.0",
+        buildDate: "2024-11-13",
+        lastUpdate: "Added fullscreen mode with back button"
+    };
+    
     try {
         const response = await fetch('version.json?' + new Date().getTime()); // מונע caching
         const versionData = await response.json();
-        
-        // עדכן את האלמנטים
-        const gameVersion = document.getElementById('gameVersion');
-        const gameBuildDate = document.getElementById('gameBuildDate');
-        const gameLastUpdate = document.getElementById('gameLastUpdate');
-        const deployStatus = document.getElementById('deployStatus');
-        
-        if (gameVersion) gameVersion.textContent = 'v' + versionData.version;
-        if (gameBuildDate) gameBuildDate.textContent = versionData.buildDate;
-        if (gameLastUpdate) gameLastUpdate.textContent = versionData.lastUpdate;
-        if (deployStatus) {
-            const now = new Date();
-            const buildDate = new Date(versionData.buildDate);
-            const daysDiff = Math.floor((now - buildDate) / (1000 * 60 * 60 * 24));
-            
-            if (daysDiff === 0) {
-                deployStatus.innerHTML = '✅ Live (Updated today!)';
-                deployStatus.style.color = '#4CAF50';
-            } else if (daysDiff === 1) {
-                deployStatus.innerHTML = '✅ Live (Updated yesterday)';
-                deployStatus.style.color = '#4CAF50';
-            } else {
-                deployStatus.innerHTML = `✅ Live (${daysDiff} days old)`;
-                deployStatus.style.color = '#2196F3';
-            }
-        }
-        
-        console.log('📦 Version loaded:', versionData.version);
+        updateVersionDisplay(versionData);
+        console.log('📦 Version loaded from file:', versionData.version);
     } catch (error) {
-        console.error('❌ Error loading version info:', error);
-        const gameVersion = document.getElementById('gameVersion');
-        if (gameVersion) gameVersion.textContent = 'Unknown';
+        console.warn('⚠️ Could not load version.json (normal for local files), using default:', error.message);
+        updateVersionDisplay(defaultVersionData);
+    }
+}
+
+// פונקציה לעדכון תצוגת הגרסה
+function updateVersionDisplay(versionData) {
+    const gameVersion = document.getElementById('gameVersion');
+    const gameBuildDate = document.getElementById('gameBuildDate');
+    const gameLastUpdate = document.getElementById('gameLastUpdate');
+    const deployStatus = document.getElementById('deployStatus');
+    
+    if (gameVersion) gameVersion.textContent = 'v' + versionData.version;
+    if (gameBuildDate) gameBuildDate.textContent = versionData.buildDate;
+    if (gameLastUpdate) gameLastUpdate.textContent = versionData.lastUpdate;
+    
+    if (deployStatus) {
+        const now = new Date();
+        const buildDate = new Date(versionData.buildDate);
+        const daysDiff = Math.floor((now - buildDate) / (1000 * 60 * 60 * 24));
+        
+        // בדוק אם זה מקומי או מרוחק
+        const isLocal = window.location.protocol === 'file:' || 
+                       window.location.hostname === 'localhost' || 
+                       window.location.hostname === '127.0.0.1';
+        
+        if (isLocal) {
+            deployStatus.innerHTML = '🖥️ Local (Testing)';
+            deployStatus.style.color = '#FF9800';
+        } else if (daysDiff === 0) {
+            deployStatus.innerHTML = '✅ Live (Updated today!)';
+            deployStatus.style.color = '#4CAF50';
+        } else if (daysDiff === 1) {
+            deployStatus.innerHTML = '✅ Live (Updated yesterday)';
+            deployStatus.style.color = '#4CAF50';
+        } else {
+            deployStatus.innerHTML = `✅ Live (${daysDiff} days old)`;
+            deployStatus.style.color = '#2196F3';
+        }
     }
 }
 
