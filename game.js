@@ -3380,8 +3380,51 @@ function copyToClipboard(text) {
     alert(translate('scoreCopied'));
 }
 
+// פונקציה לטעינת מידע גרסה
+async function loadVersionInfo() {
+    try {
+        const response = await fetch('version.json?' + new Date().getTime()); // מונע caching
+        const versionData = await response.json();
+        
+        // עדכן את האלמנטים
+        const gameVersion = document.getElementById('gameVersion');
+        const gameBuildDate = document.getElementById('gameBuildDate');
+        const gameLastUpdate = document.getElementById('gameLastUpdate');
+        const deployStatus = document.getElementById('deployStatus');
+        
+        if (gameVersion) gameVersion.textContent = 'v' + versionData.version;
+        if (gameBuildDate) gameBuildDate.textContent = versionData.buildDate;
+        if (gameLastUpdate) gameLastUpdate.textContent = versionData.lastUpdate;
+        if (deployStatus) {
+            const now = new Date();
+            const buildDate = new Date(versionData.buildDate);
+            const daysDiff = Math.floor((now - buildDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysDiff === 0) {
+                deployStatus.innerHTML = '✅ Live (Updated today!)';
+                deployStatus.style.color = '#4CAF50';
+            } else if (daysDiff === 1) {
+                deployStatus.innerHTML = '✅ Live (Updated yesterday)';
+                deployStatus.style.color = '#4CAF50';
+            } else {
+                deployStatus.innerHTML = `✅ Live (${daysDiff} days old)`;
+                deployStatus.style.color = '#2196F3';
+            }
+        }
+        
+        console.log('📦 Version loaded:', versionData.version);
+    } catch (error) {
+        console.error('❌ Error loading version info:', error);
+        const gameVersion = document.getElementById('gameVersion');
+        if (gameVersion) gameVersion.textContent = 'Unknown';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOMContentLoaded נטען!");
+    
+    // טען מידע גרסה
+    loadVersionInfo();
     
     // התחברות מנוהלת דרך loginDirectly() ב-HTML
     

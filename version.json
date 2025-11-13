@@ -1,0 +1,13 @@
+{
+  "version": "1.2.0",
+  "buildDate": "2024-11-13",
+  "features": [
+    "Fullscreen game mode",
+    "Mobile responsive design",
+    "Boss fight system",
+    "Unique password authentication",
+    "Black hole transitions"
+  ],
+  "lastUpdate": "Added fullscreen mode with back button"
+}
+

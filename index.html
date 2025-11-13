@@ -83,6 +83,32 @@
                         <option value="he">עברית</option>
                     </select>
                 </div>
+                
+                <!-- מידע על הגרסה -->
+                <div style="background: rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 20px; margin-top: 20px;">
+                    <h3 style="color: #ffd700; margin-top: 0; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <span>ℹ️</span>
+                        <span id="versionInfoTitle">Version Information</span>
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: rgba(0, 0, 0, 0.2); border-radius: 5px;">
+                            <span id="versionLabel" style="font-weight: bold;">Version:</span>
+                            <span id="gameVersion" style="color: #4CAF50; font-weight: bold;">Loading...</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: rgba(0, 0, 0, 0.2); border-radius: 5px;">
+                            <span id="buildDateLabel" style="font-weight: bold;">Build Date:</span>
+                            <span id="gameBuildDate" style="color: #2196F3;">Loading...</span>
+                        </div>
+                        <div style="padding: 8px; background: rgba(0, 0, 0, 0.2); border-radius: 5px;">
+                            <span id="lastUpdateLabel" style="font-weight: bold; display: block; margin-bottom: 5px;">Last Update:</span>
+                            <span id="gameLastUpdate" style="color: #fff; font-size: 0.9em;">Loading...</span>
+                        </div>
+                        <div style="padding: 8px; background: rgba(0, 0, 0, 0.2); border-radius: 5px;">
+                            <span id="deployStatusLabel" style="font-weight: bold; display: block; margin-bottom: 5px;">Deploy Status:</span>
+                            <span id="deployStatus" style="color: #4CAF50;">✅ Live</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <div id="profileTab" class="settings-tab-content" style="display: none;">
