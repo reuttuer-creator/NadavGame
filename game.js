@@ -2308,12 +2308,24 @@ function endGame(won) {
 function startBossFight() {
     // הסתר לובי והצג קנבס
     document.getElementById('lobby').style.display = 'none';
-    document.getElementById('gameContainer').style.display = 'block';
+    const gameContainer = document.getElementById('gameContainer');
+    gameContainer.style.display = 'block';
+    
+    // הפעל מסך מלא
+    gameContainer.classList.add('fullscreen');
+    
+    // התאם את גודל הקנבס למסך
+    resizeCanvas();
     
     // הצג כפתור ירייה
     const shootBtn = document.getElementById('shootBtn');
     if (shootBtn) {
         shootBtn.style.display = 'block';
+    }
+    
+    // נעל גלילה בזמן משחק
+    if (document && document.body && document.body.classList) {
+        document.body.classList.add('no-scroll');
     }
     
     // אפס משתנים
@@ -2808,11 +2820,35 @@ function showLobby() {
     blackHoleRadius = 0;
     boxesBeingSucked = [];
     // דאג תמיד להסתיר משחק ולהציג לובי
-    if (typeof gameContainer !== 'undefined' && gameContainer) gameContainer.style.display = 'none';
+    if (typeof gameContainer !== 'undefined' && gameContainer) {
+        gameContainer.style.display = 'none';
+        // בטל מסך מלא
+        gameContainer.classList.remove('fullscreen');
+        // החזר את הקנבס לגודל המקורי
+        canvas.width = 400;
+        canvas.height = 600;
+    }
     if (typeof lobby !== 'undefined' && lobby) lobby.style.display = 'block';
     gameOver = true;
     if (document && document.body && document.body.classList) {
         document.body.classList.remove('no-scroll');
+    }
+}
+
+// פונקציה להתאמת גודל הקנבס למסך
+function resizeCanvas() {
+    if (gameContainer && gameContainer.classList.contains('fullscreen')) {
+        // מסך מלא - התאם לגודל המסך
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // התאם את מיקום השחקן
+        if (player) {
+            player.x = Math.min(player.x, canvas.width - player.width);
+            player.y = Math.min(player.y, canvas.height - player.height);
+        }
+        
+        console.log(`📐 Canvas resized to fullscreen: ${canvas.width}x${canvas.height}`);
     }
 }
 
@@ -2839,6 +2875,13 @@ function startNewGame() {
     console.log("🎮 מסתיר לובי ומציג קנטיינר משחק");
     lobby.style.display = 'none';
     gameContainer.style.display = 'block';
+    
+    // הפעל מסך מלא
+    gameContainer.classList.add('fullscreen');
+    
+    // התאם את גודל הקנבס למסך
+    resizeCanvas();
+    
     // נעל גלילה בזמן משחק
     if (document && document.body && document.body.classList) {
         document.body.classList.add('no-scroll');
