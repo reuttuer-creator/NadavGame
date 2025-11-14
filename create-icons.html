@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Generator - Dice Evasion Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 800px;
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        .instructions {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .canvas-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .icon-item {
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            display: block;
+            margin: 10px auto;
+        }
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .download-all {
+            background: linear-gradient(45deg, #11998e, #38ef7d);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 Dice Evasion Game - Icon Generator</h1>
+        
+        <div class="instructions">
+            <h3>📝 הוראות:</h3>
+            <ol>
+                <li>לחץ על "Generate Icons" כדי ליצור את כל האייקונים</li>
+                <li>לחץ על "Download" מתחת לכל אייקון כדי להוריד אותו</li>
+                <li>או לחץ על "Download All Icons" כדי להוריד את כולם בבת אחת</li>
+                <li>שמור את הקבצים בתיקיית הפרויקט שלך</li>
+                <li>העלה אותם ל-GitHub יחד עם שאר הקבצים</li>
+            </ol>
+        </div>
+
+        <button onclick="generateAllIcons()">🎨 Generate Icons</button>
+        <button class="download-all" onclick="downloadAllIcons()">📥 Download All Icons</button>
+
+        <div class="canvas-container" id="canvasContainer"></div>
+    </div>
+
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const canvases = {};
+
+        function generateAllIcons() {
+            const container = document.getElementById('canvasContainer');
+            container.innerHTML = '';
+
+            sizes.forEach(size => {
+                const iconItem = document.createElement('div');
+                iconItem.className = 'icon-item';
+
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                canvas.id = `icon-${size}`;
+                
+                const ctx = canvas.getContext('2d');
+                
+                // רקע גרדיאנט
+                const gradient = ctx.createLinearGradient(0, 0, size, size);
+                gradient.addColorStop(0, '#667eea');
+                gradient.addColorStop(1, '#764ba2');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, size, size);
+                
+                // צל לקוביה
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+                ctx.shadowBlur = size * 0.05;
+                ctx.shadowOffsetX = size * 0.02;
+                ctx.shadowOffsetY = size * 0.02;
+                
+                // קוביה אדומה (קוביית האויב)
+                const cubeSize = size * 0.4;
+                const cubeX = size * 0.3;
+                const cubeY = size * 0.25;
+                
+                // פאה קדמית
+                ctx.fillStyle = '#ff4444';
+                ctx.fillRect(cubeX, cubeY, cubeSize, cubeSize);
+                
+                // פאה עליונה (איזומטרי)
+                ctx.fillStyle = '#ff6666';
+                ctx.beginPath();
+                ctx.moveTo(cubeX, cubeY);
+                ctx.lineTo(cubeX + cubeSize * 0.3, cubeY - cubeSize * 0.2);
+                ctx.lineTo(cubeX + cubeSize + cubeSize * 0.3, cubeY - cubeSize * 0.2);
+                ctx.lineTo(cubeX + cubeSize, cubeY);
+                ctx.closePath();
+                ctx.fill();
+                
+                // פאה ימנית
+                ctx.fillStyle = '#cc3333';
+                ctx.beginPath();
+                ctx.moveTo(cubeX + cubeSize, cubeY);
+                ctx.lineTo(cubeX + cubeSize + cubeSize * 0.3, cubeY - cubeSize * 0.2);
+                ctx.lineTo(cubeX + cubeSize + cubeSize * 0.3, cubeY + cubeSize - cubeSize * 0.2);
+                ctx.lineTo(cubeX + cubeSize, cubeY + cubeSize);
+                ctx.closePath();
+                ctx.fill();
+                
+                // נקודות על הקוביה
+                ctx.shadowColor = 'transparent';
+                ctx.fillStyle = 'white';
+                const dotSize = cubeSize * 0.12;
+                const dotOffset = cubeSize * 0.25;
+                
+                // 5 נקודות (כמו על קוביה)
+                ctx.beginPath();
+                ctx.arc(cubeX + dotOffset, cubeY + dotOffset, dotSize, 0, Math.PI * 2);
+                ctx.arc(cubeX + cubeSize - dotOffset, cubeY + dotOffset, dotSize, 0, Math.PI * 2);
+                ctx.arc(cubeX + cubeSize / 2, cubeY + cubeSize / 2, dotSize, 0, Math.PI * 2);
+                ctx.arc(cubeX + dotOffset, cubeY + cubeSize - dotOffset, dotSize, 0, Math.PI * 2);
+                ctx.arc(cubeX + cubeSize - dotOffset, cubeY + cubeSize - dotOffset, dotSize, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // טקסט (רק לאייקונים הגדולים)
+                if (size >= 192) {
+                    ctx.font = `bold ${size * 0.12}px Arial`;
+                    ctx.fillStyle = 'white';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                    ctx.shadowBlur = size * 0.02;
+                    ctx.fillText('DICE', size / 2, size * 0.92);
+                }
+                
+                canvases[size] = canvas;
+                
+                const label = document.createElement('p');
+                label.textContent = `${size}x${size}`;
+                label.style.fontWeight = 'bold';
+                label.style.color = '#667eea';
+                
+                const downloadBtn = document.createElement('button');
+                downloadBtn.textContent = `Download ${size}x${size}`;
+                downloadBtn.onclick = () => downloadIcon(size);
+                
+                iconItem.appendChild(label);
+                iconItem.appendChild(canvas);
+                iconItem.appendChild(downloadBtn);
+                container.appendChild(iconItem);
+            });
+        }
+
+        function downloadIcon(size) {
+            const canvas = canvases[size];
+            if (!canvas) return;
+            
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `icon-${size}x${size}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        function downloadAllIcons() {
+            if (Object.keys(canvases).length === 0) {
+                alert('אנא צור את האייקונים תחילה על ידי לחיצה על "Generate Icons"');
+                return;
+            }
+            
+            sizes.forEach((size, index) => {
+                setTimeout(() => {
+                    downloadIcon(size);
+                }, index * 500); // עיכוב קטן בין הורדות
+            });
+        }
+
+        // צור אייקונים אוטומטית בטעינת הדף
+        window.addEventListener('load', generateAllIcons);
+    </script>
+</body>
+</html>
+
